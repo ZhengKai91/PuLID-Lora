@@ -16,6 +16,13 @@ from eva_clip import create_model_and_transforms
 from eva_clip.constants import OPENAI_DATASET_MEAN, OPENAI_DATASET_STD
 from pulid.encoders_transformer import IDFormer, PerceiverAttentionCA
 from pulid.utils import img2tensor, tensor2img
+from flux.util import  load_checkpoint, get_lora_rank
+from flux.modules.layers import  (
+    SingleStreamBlockProcessor,
+    DoubleStreamBlockProcessor,
+    SingleStreamBlockLoraProcessor,
+    DoubleStreamBlockLoraProcessor,
+)
 
 
 class PuLIDPipeline(nn.Module):
@@ -41,6 +48,7 @@ class PuLIDPipeline(nn.Module):
         dit.pulid_ca = self.pulid_ca
         dit.pulid_double_interval = double_interval
         dit.pulid_single_interval = single_interval
+        self.model = dit
 
         # preprocessors
         # face align and parsing
@@ -192,3 +200,33 @@ class PuLIDPipeline(nn.Module):
         uncond_id_embedding = self.pulid_encoder(id_uncond, id_vit_hidden_uncond)
 
         return id_embedding, uncond_id_embedding
+
+    def set_lora(self, local_path: str = None, repo_id: str = None,
+                 name: str = None, lora_weight: float = 0.7):
+        checkpoint = load_checkpoint(local_path, repo_id, name)
+        self.update_model_with_lora(checkpoint, lora_weight)
+    
+    def update_model_with_lora(self, checkpoint, lora_weight):
+        rank = get_lora_rank(checkpoint)
+        lora_attn_procs = {}
+
+        for name, _ in self.model.attn_processors.items():
+            lora_state_dict = {}
+            for k in checkpoint.keys():
+                if name in k:
+                    lora_state_dict[k[len(name) + 1:]] = checkpoint[k] * lora_weight
+
+            if len(lora_state_dict):
+                if name.startswith("single_blocks"):
+                    lora_attn_procs[name] = SingleStreamBlockLoraProcessor(dim=3072, rank=rank)
+                else:
+                    lora_attn_procs[name] = DoubleStreamBlockLoraProcessor(dim=3072, rank=rank)
+                lora_attn_procs[name].load_state_dict(lora_state_dict)
+                lora_attn_procs[name].to(self.device)
+            else:
+                if name.startswith("single_blocks"):
+                    lora_attn_procs[name] = SingleStreamBlockProcessor()
+                else:
+                    lora_attn_procs[name] = DoubleStreamBlockProcessor()
+
+        self.model.set_attn_processor(lora_attn_procs)

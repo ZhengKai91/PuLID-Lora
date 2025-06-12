@@ -4,12 +4,41 @@ from dataclasses import dataclass
 
 import torch
 from huggingface_hub import hf_hub_download
+from safetensors import safe_open
 from safetensors.torch import load_file as load_sft
 
 from flux.model import Flux, FluxParams
 from flux.modules.autoencoder import AutoEncoder, AutoEncoderParams
 from flux.modules.conditioner import HFEmbedder
 
+def load_safetensors(path):
+    tensors = {}
+    with safe_open(path, framework="pt", device="cpu") as f:
+        for key in f.keys():
+            tensors[key] = f.get_tensor(key)
+    return tensors
+
+def get_lora_rank(checkpoint):
+    for k in checkpoint.keys():
+        if k.endswith(".down.weight"):
+            return checkpoint[k].shape[0]
+
+def load_checkpoint(local_path, repo_id, name):
+    if local_path is not None:
+        if '.safetensors' in local_path:
+            print(f"Loading .safetensors checkpoint from {local_path}")
+            checkpoint = load_safetensors(local_path)
+        else:
+            print(f"Loading checkpoint from {local_path}")
+            checkpoint = torch.load(local_path, map_location='cpu')
+    elif repo_id is not None and name is not None:
+        print(f"Loading checkpoint {name} from repo id {repo_id}")
+        checkpoint = load_from_repo_id(repo_id, name)
+    else:
+        raise ValueError(
+            "LOADING ERROR: you must specify local_path or repo_id with name in HF to download"
+        )
+    return checkpoint
 
 @dataclass
 class SamplingOptions:
@@ -122,7 +151,6 @@ def load_flow_model(name: str, device: str = "cuda", hf_download: bool = True):
         and hf_download
     ):
         ckpt_path = hf_hub_download(configs[name].repo_id, configs[name].repo_flow, local_dir='models')
-
     with torch.device(device):
         model = Flux(configs[name].params).to(torch.bfloat16)
 
