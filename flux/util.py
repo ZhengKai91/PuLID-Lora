@@ -22,6 +22,11 @@ def get_lora_rank(checkpoint):
     for k in checkpoint.keys():
         if k.endswith(".down.weight"):
             return checkpoint[k].shape[0]
+            
+def load_from_repo_id(repo_id, checkpoint_name):
+    ckpt_path = hf_hub_download(repo_id, checkpoint_name)
+    sd = load_sft(ckpt_path, device='cpu')
+    return sd
 
 def load_checkpoint(local_path, repo_id, name):
     if local_path is not None:

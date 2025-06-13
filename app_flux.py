@@ -44,6 +44,10 @@ class FluxGenerator:
         )
         self.pulid_model = PuLIDPipeline(self.model, device="cpu" if offload else device, weight_dtype=torch.bfloat16,
                                          onnx_provider=args.onnx_provider)
+
+        if args.use_lora:
+            self.pulid_model.set_lora(args.lora_local_path, args.lora_repo_id, args.lora_name, args.lora_weight)
+            
         if offload:
             self.pulid_model.face_helper.face_det.mean_tensor = self.pulid_model.face_helper.face_det.mean_tensor.to(torch.device("cuda"))
             self.pulid_model.face_helper.face_det.device = torch.device("cuda")
@@ -318,6 +322,12 @@ if __name__ == "__main__":
     parser.add_argument("--port", type=int, default=8080, help="Port to use")
     parser.add_argument("--dev", action='store_true', help="Development mode")
     parser.add_argument("--pretrained_model", type=str, help='for development')
+    parser.add_argument("--lora_repo_id", type=str, default=None, help="A HuggingFace repo id to download model (LoRA)")
+    parser.add_argument("--lora_name", type=str, default=None, help="A LoRA filename to download from HuggingFace")
+    parser.add_argument("--lora_local_path", type=str, default=None, help="Local path to the model checkpoint (Controlnet)")
+    parser.add_argument("--lora_weight", type=float, default=0.9, help="Lora model strength (from 0 to 1.0)")
+    parser.add_argument("--use_lora", action='store_true', help="Load Lora model")
+
     args = parser.parse_args()
 
     if args.aggressive_offload:

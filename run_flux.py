@@ -44,11 +44,8 @@ class FluxGenerator:
         )
         self.pulid_model = PuLIDPipeline(self.model, device="cpu" if offload else device, weight_dtype=torch.bfloat16,
                                          onnx_provider=args.onnx_provider)
-        lora_local_path = "/home/zhengkai/PuLID/models/flux-lora-collection/realism_lora.safetensors"
-        
-        import pdb; pdb.set_trace()
-
-        self.pulid_model.set_lora(lora_local_path, lora_weight=1.0)
+        if args.use_lora:
+            self.pulid_model.set_lora(args.lora_local_path, args.lora_repo_id, args.lora_name, args.lora_weight)
 
         if offload:
             self.pulid_model.face_helper.face_det.mean_tensor = self.pulid_model.face_helper.face_det.mean_tensor.to(torch.device("cuda"))
@@ -185,8 +182,8 @@ def run(args, model_name: str, device: str = "cuda" if torch.cuda.is_available()
     num_steps = 20
    
     max_sequence_length = 128
-    prompt =  'a women holding a sign that says \'I LOVE WAVESPEED!\',  standing in front of a beach',
-    id_image = 'example_inputs/gehuijie.jpg'
+    prompt =  'A girl in a suit covered with bold tattoos and holding a vest pistol, beautiful woman, 25 years old, cool, future fantasy, turquoise & light orange ping curl hair',
+    id_image = 'example_inputs/liuyifei.png'
     #id_image = Image.open(id_image).convert("RGB")
     id_image = cv2.imread(id_image)
     #id_image = cv2.cvtColor(id_image, cv2.COLOR_BGR2RGB)
@@ -219,10 +216,15 @@ if __name__ == "__main__":
     parser.add_argument("--port", type=int, default=8080, help="Port to use")
     parser.add_argument("--dev", action='store_true', help="Development mode")
     parser.add_argument("--pretrained_model", type=str, help='for development')
+    parser.add_argument("--lora_repo_id", type=str, default=None, help="A HuggingFace repo id to download model (LoRA)")
+    parser.add_argument("--lora_name", type=str, default=None, help="A LoRA filename to download from HuggingFace")
+    parser.add_argument("--lora_local_path", type=str, default=None, help="Local path to the model checkpoint (Controlnet)")
+    parser.add_argument("--lora_weight", type=float, default=0.9, help="Lora model strength (from 0 to 1.0)")
+    parser.add_argument("--use_lora", action='store_true', help="Load Lora model")
     args = parser.parse_args()
 
     if args.aggressive_offload:
         args.offload = True
 
     image = run(args, args.name, args.device, args.offload, args.aggressive_offload)
-    image.save("output_1.png")
+    image.save("output.png")
