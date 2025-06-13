@@ -28,7 +28,7 @@ python app_flux.py --use_lora --lora_repo_id repo_id --lora_name lora-name.safet
 ```python
 python run_flux.py --use_lor --lora_repo_id XLabs-AI/flux-lora-collection --lora_name realism_lora.safetensors  
 ```
-![output](assets/liuyifei_example.png)
+![output](examples/liuyifei_example.png)
 ## Acknowledgement
 We acknowledge the original PuLID project and its contributors for their pioneering work in ID customization. Their efforts have laid the foundation for this extended implementation.
 ## Contact
