@@ -29,19 +29,20 @@ python app_flux.py --use_lora --lora_repo_id repo_id --lora_name lora-name.safet
 python run_flux.py --use_lora --lora_repo_id XLabs-AI/flux-lora-collection --lora_name realism_lora.safetensors  
 ```
 
-<div style="display: flex; flex-direction: column; align-items: center;">
-  <!-- 图片容器 -->
-  <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 10px;">
-    <div style="width: 50%; height: 500px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-      <img src="example_inputs/liuyifei.png" style="width: 100%; height: 100%; object-fit: cover;" alt="id image">
-    </div>
-    <div style="width: 50%; height: 500px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-      <img src="examples/liuyifei_example.png" style="width: 100%; height: 100%; object-fit: cover;" alt="output">
-    </div>
-  </div>
-  <!-- 文字 -->
-  <p style="text-align: center; width: 60%;">A girl in a suit covered with bold tattoos and holding a vest pistol, beautiful woman, 25 years old, cool, future fantasy, turquoise & light orange ping curl hair</p>
-</div>
+<table style="width: 100%; border-collapse: collapse;">
+  <tr>
+    <td style="width: 50%; text-align: center; vertical-align: top;">
+      <img src="example_inputs/liuyifei.png" style="width: 100%; height: 500px; object-fit: contain;" alt="id image">
+    </td>
+    <td style="width: 50%; text-align: center; vertical-align: top;">
+      <img src="examples/liuyifei_example.png" style="width: 100%; height: 500px; object-fit: contain;" alt="output">
+    </td>
+  </tr>
+</table>
+
+<p style="text-align: center; margin-top: 10px;">
+  A girl in a suit covered with bold tattoos and holding a vest pistol, beautiful woman, 25 years old, cool, future fantasy, turquoise & light orange ping curl hair
+</p>
 
 ## Acknowledgement
 We acknowledge the original PuLID project and its contributors for their pioneering work in ID customization. Their efforts have laid the foundation for this extended implementation.
