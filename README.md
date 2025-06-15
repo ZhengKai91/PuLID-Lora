@@ -26,9 +26,23 @@ python app_flux.py --use_lora --lora_repo_id repo_id --lora_name lora-name.safet
 
 ## Example
 ```python
-python run_flux.py --use_lor --lora_repo_id XLabs-AI/flux-lora-collection --lora_name realism_lora.safetensors  
+python run_flux.py --use_lora --lora_repo_id XLabs-AI/flux-lora-collection --lora_name realism_lora.safetensors  
 ```
-![output](examples/liuyifei_example.png)
+
+<div style="display: flex; flex-direction: column; align-items: center;">
+  <!-- 图片容器 -->
+  <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 10px;">
+    <div style="width: 50%; height: 500px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+      <img src="example_inputs/liuyifei.png" style="width: 100%; height: 100%; object-fit: cover;" alt="id image">
+    </div>
+    <div style="width: 50%; height: 500px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+      <img src="examples/liuyifei_example.png" style="width: 100%; height: 100%; object-fit: cover;" alt="output">
+    </div>
+  </div>
+  <!-- 文字 -->
+  <p style="text-align: center; width: 60%;">A girl in a suit covered with bold tattoos and holding a vest pistol, beautiful woman, 25 years old, cool, future fantasy, turquoise & light orange ping curl hair</p>
+</div>
+
 ## Acknowledgement
 We acknowledge the original PuLID project and its contributors for their pioneering work in ID customization. Their efforts have laid the foundation for this extended implementation.
 ## Contact
